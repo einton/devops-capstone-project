@@ -17,13 +17,46 @@ Resources:
     Properties:
       BucketName: !Join
       - "-"
-      - - 'micro-udapeople'
+      - - 'Micro-Udapeople'
         - !Select
-          - 0
+          - 2
           - !Split
-            - "-"
-            - !Select
-              - 2
-              - !Split
-                - "/"
-                - !Ref "AWS::StackId"
+            - "/"
+            - !Ref "AWS::StackId"
+  ClusterSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub Micro-Udapeople-SecurityGroup
+      GroupDescription: Allow some connection.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: Micro-Udapeople-Cluster
+      Version: "1.21"
+      RoleArn: "arn:aws:iam::809074436830:role/EKSClusterRole"
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - Ref: ClusterSecurityGroup
+        EndpointPublicAccess: true
+        EndpointPrivateAccess: true
+      Logging:
+        ClusterLogging:
+          EnabledTypes:
+            - Type: api
+            - Type: audit
+      Tags:
+        - Key: "Project"
+          Value: "Micro-Udapeople"
