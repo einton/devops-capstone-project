@@ -1,0 +1,32 @@
+Description: >
+  Cloudfront distribution for UdaPeople.
+
+Parameters:
+  OldWorkflowID:
+    Description: Old Unique identifier.
+    Type: String
+  NewWorkflowID:
+    Description: New Unique identifier.
+    Type: String
+  ProjectName:
+    Description: Project Name
+    Type: String
+
+
+Resources:
+  
+  S3Bucket:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      BucketName: !Join
+      - "-"
+      - - 'micro-udapeople'
+        - !Select
+          - 0
+          - !Split
+            - "-"
+            - !Select
+              - 2
+              - !Split
+                - "/"
+                - !Ref "AWS::StackId"

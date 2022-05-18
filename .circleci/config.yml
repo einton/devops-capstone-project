@@ -1,0 +1,40 @@
+version: 2.1
+
+commands:
+  destroy-environment:
+    description: Delete cloudformation.
+    parameters:
+      workflow-id:
+        type: string   
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name << parameters.workflow-id >> --region us-east-1
+
+jobs:
+  inittial-infra:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Update
+          command: |
+            yum update
+      - run:
+          name: Initial infrastructure
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/initial-infra.yml \
+              --tags project=micro-udapeople \
+              --stack-name "micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+      - destroy-environment:
+          workflow-id: micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}
+
+workflows:
+  default:
+    jobs:
+      - inittial-infra
