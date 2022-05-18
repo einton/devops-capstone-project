@@ -5,7 +5,7 @@ Parameters:
   OldWorkflowID:
     Description: Old Unique identifier.
     Type: String
-    
+
   NewWorkflowID:
     Description: New Unique identifier.
     Type: String
@@ -92,56 +92,56 @@ Resources:
         - Key: Creator 
           Value: !Ref Creator
 
-    PublicSubnet2: 
-      Type: AWS::EC2::Subnet
-      DependsOn: VPC
-      Properties:
-        VpcId: !Ref VPC
-        AvailabilityZone: !Select [ 1, !GetAZs '' ]
-        CidrBlock: !Ref PublicSubnet2CIDR
-        MapPublicIpOnLaunch: true
-        Tags: 
-          - Key: Name 
-            Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
-          - Key: Creator 
-            Value: !Ref Creator
+  PublicSubnet2: 
+    Type: AWS::EC2::Subnet
+    DependsOn: VPC
+    Properties:
+      VpcId: !Ref VPC
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2CIDR
+      MapPublicIpOnLaunch: true
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+        - Key: Creator 
+          Value: !Ref Creator
 
-    PublicRouteTable:
-      Type: AWS::EC2::RouteTable
-      DependsOn: InternetGatewayAttachment
-      Properties: 
-        VpcId: !Ref VPC
-        Tags: 
-          - Key: Name 
-            Value: !Sub ${EnvironmentName} Public Routes
-          - Key: Creator 
-            Value: !Ref Creator
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: InternetGatewayAttachment
+    Properties: 
+      VpcId: !Ref VPC
+      Tags: 
+        - Key: Name 
+          Value: !Sub ${EnvironmentName} Public Routes
+        - Key: Creator 
+          Value: !Ref Creator
 
-    DefaultPublicRoute: 
-      Type: AWS::EC2::Route
-      DependsOn: InternetGatewayAttachment
-      Properties: 
-        RouteTableId: !Ref PublicRouteTable
-        DestinationCidrBlock: 0.0.0.0/0
-        GatewayId: !Ref InternetGateway
+  DefaultPublicRoute: 
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties: 
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
 
-    PublicSubnet1RouteTableAssociation:
-      Type: AWS::EC2::SubnetRouteTableAssociation
-      DependsOn:
-        - PublicRouteTable
-        - PublicSubnet1
-      Properties:
-        RouteTableId: !Ref PublicRouteTable
-        SubnetId: !Ref PublicSubnet1
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet1
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet1
 
-    PublicSubnet2RouteTableAssociation:
-      Type: AWS::EC2::SubnetRouteTableAssociation
-      DependsOn:
-        - PublicRouteTable
-        - PublicSubnet2
-      Properties:
-        RouteTableId: !Ref PublicRouteTable
-        SubnetId: !Ref PublicSubnet2
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    DependsOn:
+      - PublicRouteTable
+      - PublicSubnet2
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet2
 
   ClusterSecurityGroup:
     Type: AWS::EC2::SecurityGroup
