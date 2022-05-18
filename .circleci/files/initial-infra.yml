@@ -17,7 +17,7 @@ Resources:
     Properties:
       BucketName: !Join
       - "-"
-      - - 'Micro-Udapeople'
+      - - 'micro-udapeople'
         - !Select
           - 2
           - !Split
