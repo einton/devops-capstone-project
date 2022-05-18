@@ -30,7 +30,7 @@ jobs:
               --template-file .circleci/files/initial-infra.yml \
               --tags project=micro-udapeople \
               --stack-name "micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+              --parameter-overrides OldWorkflowID="${CIRCLE_WORKFLOW_ID}" NewWorkflowID="${CIRCLE_WORKFLOW_ID}"  
       - destroy-environment:
           workflow-id: micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}
 

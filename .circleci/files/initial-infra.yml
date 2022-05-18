@@ -8,9 +8,6 @@ Parameters:
   NewWorkflowID:
     Description: New Unique identifier.
     Type: String
-  ProjectName:
-    Description: Project Name
-    Type: String
 
 
 Resources:
