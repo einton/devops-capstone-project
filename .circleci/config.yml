@@ -25,6 +25,7 @@ jobs:
             yum update
       - run:
           name: Initial infrastructure
+          no_output_timeout: 30m
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/initial-infra.yml \
