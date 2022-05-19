@@ -172,7 +172,7 @@ Resources:
     Type: AWS::EKS::Cluster
     Properties:
       Name: Micro-Udapeople-Cluster
-      Version: "1.21"
+      Version: "1.22"
       RoleArn: "arn:aws:iam::809074436830:role/EKSClusterRole"
       ResourcesVpcConfig:
         SecurityGroupIds:
@@ -188,7 +188,5 @@ Resources:
             - Type: api
             - Type: audit
       Tags:
-        - Key: Name 
-          Value: !Ref EnvironmentName
         - Key: Creator 
           Value: !Ref Creator
