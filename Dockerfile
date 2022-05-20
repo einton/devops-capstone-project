@@ -1,12 +1,13 @@
 FROM circleci/node:13.8.0
 
 ## Step 1:
-WORKDIR /app
+WORKDIR /app/backend
 
 ## Step 2:
 COPY . artifact.tar.gz /app/
 
 ## Step 3:
+RUN cd /app
 RUN sudo npm install pm2 -g
 RUN sudo tar -xvf artifact.tar.gz
 RUN cd backend
@@ -16,4 +17,4 @@ RUN ls -la
 EXPOSE 3030
 
 ## Step 5:
-CMD ["cd", "backend", "&&", "pm2", "start", "npm -- start"]
+CMD ["pm2", "start", "npm -- start"]
