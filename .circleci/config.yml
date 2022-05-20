@@ -173,14 +173,13 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update --no-cache py-pip docker-compose
-      - run:
-          name: Deploy backend
+          name: Compress Data
           command: |
             tar -C backend -czvf artifact.tar.gz .
             ls -l artifact.tar.gz
+      - run:
+          name: Build and upload Docker image
+          command: |
             echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker build --tag=micro-udapeople .
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
