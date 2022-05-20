@@ -9,8 +9,6 @@ COPY . artifact.tar.gz /app/
 ## Step 3:
 RUN sudo npm install pm2
 RUN sudo tar -xvf artifact.tar.gz
-RUN sudo npm install
-RUN sudo pm2 stop default
 
 ## Step 4:
 EXPOSE 9090
