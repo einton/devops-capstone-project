@@ -16,4 +16,4 @@ RUN ls -la
 EXPOSE 3030
 
 ## Step 5:
-CMD ["pm2", "start", "npm -- start"]
+CMD ["cd", "backend", "&&", "pm2", "start", "npm -- start"]
