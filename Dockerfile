@@ -27,13 +27,14 @@ COPY . artifact.tar.gz /app/
 
 ## Step 3:
 RUN cd /app
+RUN ls -la
 RUN sudo npm install pm2 -g
 RUN sudo tar -xvf artifact.tar.gz
 RUN cd backend
-RUN ls -la
+
 
 ## Step 4:
 EXPOSE 3030
 
 ## Step 5:
-CMD ["pm2", "start", "npm -- start"]
+CMD ["pm2-runtime", "start", "npm -- start"]
