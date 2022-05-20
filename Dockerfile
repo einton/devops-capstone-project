@@ -28,7 +28,6 @@ COPY . artifact.tar.gz /app/
 ## Step 3:
 RUN sudo npm install pm2 -g
 RUN sudo tar -xvf /app/artifact.tar.gz
-RUN cd backend
 
 
 ## Step 4:
