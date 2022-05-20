@@ -196,7 +196,8 @@ Resources:
     Properties:
       ClusterName: !Ref EKSCluster
       NodeRole: 'arn:aws:iam::809074436830:role/AmazonEKSNodeRole'
-      InstanceTypes: t3.micro
+      InstanceTypes: 
+        - t3.micro
       ScalingConfig:
         MinSize: 1
         DesiredSize: 1
