@@ -1,7 +1,6 @@
 FROM circleci/node:13.8.0
 
 ## Step 1:
-WORKDIR /app
 
 ## Step 2:
 COPY . artifact.tar.gz /app/
