@@ -180,8 +180,15 @@ jobs:
       - run:
           name: Build and upload Docker image
           command: |
-            docker login -u einton --password $DOCKER_PASSWORD
-            docker build --tag=micro-udapeople .
+            docker login -u einton --password ${DOCKER_PASSWORD}
+            docker build --tag=micro-udapeople --build-arg TYPEORM_CONNECTION=${TYPEORM_CONNECTION} \
+                  --build-arg TYPEORM_DATABASE=${TYPEORM_DATABASE} \
+                  --build-arg TYPEORM_ENTITIES=${TYPEORM_ENTITIES} \
+                  --build-arg TYPEORM_HOST=${TYPEORM_HOST} \
+                  --build-arg TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR} \
+                  --build-arg TYPEORM_PASSWORD=${TYPEORM_PASSWORD} \
+                  --build-arg TYPEORM_PORT=${TYPEORM_PORT} \
+                  --build-arg TYPEORM_USERNAME=${TYPEORM_USERNAME} .
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
             docker push einton/micro-udapeople
 
