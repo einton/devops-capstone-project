@@ -180,7 +180,7 @@ jobs:
       - run:
           name: Build and upload Docker image
           command: |
-            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+            docker login -u einton --password $DOCKER_PASSWORD
             docker build --tag=micro-udapeople .
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
             docker push einton/micro-udapeople
