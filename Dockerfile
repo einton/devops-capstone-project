@@ -26,10 +26,8 @@ ENV TYPEORM_USERNAME=${TYPEORM_USERNAME}
 COPY . artifact.tar.gz /app/
 
 ## Step 3:
-RUN pwd
-RUN ls -la
 RUN sudo npm install pm2 -g
-RUN sudo tar -xvf artifact.tar.gz
+RUN sudo tar -xvf /app/artifact.tar.gz
 RUN cd backend
 
 
