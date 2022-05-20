@@ -13,6 +13,36 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name << parameters.workflow-id >> --region us-east-1
 
+  clear-s3:
+    description: Clear S3.
+    parameters:
+      workflow-id:
+        type: string   
+    steps:
+      - run:
+          name: Clear S3
+          when: on_fail
+          command: |
+            aws s3 rm s3://<< parameters.workflow-id >> --recursive
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow-id:
+        type: string       
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS=$(curl --insecure  https://kvdb.io/4TwwLXxZXa6Ft71Nw7gALr/migration_<< parameters.workflow-id >>)
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
+
 jobs:
   inittial-infra:
     docker:
@@ -35,7 +65,134 @@ jobs:
       - destroy-environment:
           workflow-id: micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}
 
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Build Front-end
+          command: |
+            cd frontend
+            npm install
+            npm run build
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Build Back-end
+          command: |
+            cd backend
+            npm install
+            npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Test Front-end
+          command: |
+            cd frontend
+            npm install
+            npm run test
+
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Test Back-end
+          command: |
+            cd backend
+            npm install
+            npm run test
+
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Analyze Front-end
+          command: |
+            cd frontend
+            npm install
+            npm install oauth-sign@^0.9.0
+            npm audit fix --force
+            npm audit --audit-level=critical
+
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Analyze Back-end
+          command: |
+            cd backend
+            npm install
+            npm install oauth-sign@^0.9.0
+            npm audit fix --force
+            npm audit --audit-level=critical
+
+  create-backend-image:
+    docker:
+      - image: docker:latest
+    steps:
+      - checkout
+      - setup_remote_docker
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update --no-cache py-pip docker-compose awscli
+      - run:
+          name: Deploy backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            docker login --username einton --password ${DOCKER_PASSWORD}
+            docker build --tag=micro-udapeople .
+            docker image tag micro-udapeople:latest einton/micro-udapeople:latest
+            docker push einton/micro-udapeople
+
 workflows:
   default:
     jobs:
-      - inittial-infra
+      # - inittial-infra
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - create-backend-image: 
+          requires: [test-backend, scan-backend]
