@@ -161,10 +161,15 @@ jobs:
 
   create-backend-image:
     docker:
-      - image: docker:latest
+      - image: cimg/go:1.17
+        auth:
+          username: einton
+          password: $DOCKER_PASSWORD 
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          version: 20.10.14
+          docker_layer_caching: true
       - attach_workspace:
           at: ~/
       - run:
@@ -175,7 +180,8 @@ jobs:
           name: Deploy backend
           command: |
             tar -C backend -czvf artifact.tar.gz .
-            docker login --username einton --password ${DOCKER_PASSWORD}
+            ls -l artifact.tar.gz
+            echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
             docker build --tag=micro-udapeople .
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
             docker push einton/micro-udapeople
