@@ -3,7 +3,7 @@ FROM circleci/node:13.8.0
 ## Step 1:
 
 ## Step 2:
-COPY . artifact.tar.gz /app/
+COPY . artifact.tar.gz ~/
 
 ## Step 3:
 RUN sudo npm install pm2 -g
