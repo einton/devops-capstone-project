@@ -13,7 +13,7 @@ RUN cd backend
 RUN ls -la
 
 ## Step 4:
-EXPOSE 9090
+EXPOSE 3030
 
 ## Step 5:
 CMD ["pm2", "start", "npm -- start"]
