@@ -227,7 +227,7 @@ jobs:
             export API_URL="http://${BACKEND_ENDPOINT}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> frontend/.env
-            sed -i 's/\**/${AWS_DEFAULT_REGION}/g' frontend/.env
+            sed -i -e 's/\**/\$\{AWS_DEFAULT_REGION\}/g' frontend/.env
             cat frontend/.env
 
 workflows:
