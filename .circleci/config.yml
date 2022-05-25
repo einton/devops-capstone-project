@@ -222,7 +222,11 @@ jobs:
       - run:
           name: Get backend endpoint
           command: |
-            kubectl get service ecsdemo-frontend -o json | jq -r '.status.loadBalancer.ingress[].hostname'
+            export BACKEND_IP=$(kubectl get service micro-udapeple -o json | jq -r '.status.loadBalancer.ingress[].hostname')
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
 
 workflows:
   default:
