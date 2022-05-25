@@ -192,10 +192,27 @@ jobs:
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
             docker push einton/micro-udapeople
 
+  deploy-backend:
+    docker:
+      - image: bitnami/kubectl
+    steps:
+      - checkout
+      - run:
+          name: Install aws cli
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+            aws --version
+      - run:
+          name: Update cluster profile
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
+
 workflows:
   default:
     jobs:
-      - inittial-infra
+      # - inittial-infra
       # - build-frontend
       # - build-backend
       # - test-frontend:
@@ -208,3 +225,4 @@ workflows:
       #     requires: [build-backend]
       # - create-backend-image: 
       #     requires: [build-backend]
+      - deploy-backend
