@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: micro-udapeple
+  labels:
+    app: micro-udapeple
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: micro-udapeple
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: micro-udapeple
+    spec:
+      containers:
+      - image: einton/micro-udapeople
+        imagePullPolicy: Always
+        name: micro-udapeple
+        ports:
+        - containerPort: 3030
+          protocol: TCP
