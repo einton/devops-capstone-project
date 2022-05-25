@@ -205,10 +205,21 @@ jobs:
             echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
             install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
             kubectl version --client
+            yum -y install epel-release
+            yum -y install jq
       - run:
           name: Update cluster profile
           command: |
             aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
+      - run:
+          name: Create deployment and service
+          command: |
+            kubectl apply -f deployment.yml
+            kubectl apply -f service.yml
+      - run:
+          name: Get backend endpoint
+          command: |
+            kubectl get service ecsdemo-frontend -o json | jq -r '.status.loadBalancer.ingress[].hostname'
 
 workflows:
   default:
