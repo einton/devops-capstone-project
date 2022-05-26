@@ -229,6 +229,24 @@ jobs:
             echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> frontend/.env
             cat frontend/.env
 
+  smoke-test:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Backend smoke test.
+          command: |
+            export BACKEND_IP=$(sed -r 's/^[_0-9a-zA-Z]+=//g' frontend/.env)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                exit 0
+            else
+                exit 1
+            fi
+
 workflows:
   default:
     jobs:
@@ -246,3 +264,5 @@ workflows:
       # - create-backend-image: 
       #     requires: [build-backend]
       - deploy-backend
+      - smoke-test:
+          requires: [deploy-backend]
