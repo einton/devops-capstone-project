@@ -239,6 +239,11 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install Dependences
+          command: |
+            yum -y update
+            yum -y install tar gzip
       - restore_cache:
           keys: [frontend-env]
       - run:
