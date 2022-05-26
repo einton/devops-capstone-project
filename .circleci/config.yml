@@ -203,7 +203,7 @@ jobs:
           name: Install Dependences
           command: |
             yum -y update
-            yum -y install jq
+            yum -y install jq tar gzip
       - run:
           name: Install kubectl
           command: |
