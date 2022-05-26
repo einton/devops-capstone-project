@@ -197,13 +197,13 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-env]
       - run:
           name: Install Dependences
           command: |
             yum -y update
             yum -y install jq tar gzip
+      - restore_cache:
+          keys: [frontend-env]
       - run:
           name: Install kubectl
           command: |
