@@ -286,5 +286,5 @@ workflows:
       # - create-backend-image: 
       #     requires: [build-backend]
       - deploy-backend
-      - smoke-test-backend:: 
+      - smoke-test-backend: 
           requires: [deploy-backend]
