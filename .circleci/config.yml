@@ -222,7 +222,7 @@ jobs:
       - run:
           name: Get backend endpoint
           command: |
-            sleep 60s
+            sleep 120s
             export BACKEND_ENDPOINT=$(kubectl get service micro-udapeple -o json | jq -r '.status.loadBalancer.ingress[].hostname')
             export API_URL="http://${BACKEND_ENDPOINT}:3030"
             echo "API_URL = ${API_URL}"
