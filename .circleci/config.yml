@@ -233,7 +233,7 @@ jobs:
 workflows:
   default:
     jobs:
-      # - inittial-infra
+      - inittial-infra
       # - build-frontend
       # - build-backend
       # - test-frontend:
@@ -246,4 +246,4 @@ workflows:
       #     requires: [build-backend]
       # - create-backend-image: 
       #     requires: [build-backend]
-      - deploy-backend
+      # - deploy-backend
