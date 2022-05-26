@@ -61,7 +61,7 @@ jobs:
               --template-file .circleci/files/initial-infra.yml \
               --tags project=micro-udapeople \
               --stack-name "micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides OldWorkflowID="${CIRCLE_WORKFLOW_ID}" NewWorkflowID="${CIRCLE_WORKFLOW_ID}"  
+              --parameter-overrides OldWorkflowID="${CIRCLE_WORKFLOW_ID}" NewWorkflowID="${CIRCLE_WORKFLOW_ID}" --region us-east-1
       - destroy-environment:
           workflow-id: micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}
 
@@ -226,14 +226,13 @@ jobs:
             export BACKEND_ENDPOINT=$(kubectl get service micro-udapeple -o json | jq -r '.status.loadBalancer.ingress[].hostname')
             export API_URL="http://${BACKEND_ENDPOINT}:3030"
             echo "API_URL = ${API_URL}"
-            echo "${AWS_DEFAULT_REGION}"
-            echo API_URL="http://${BACKEND_ENDPOINT}:3030" | sed -r "s/[*]+/$AWS_DEFAULT_REGION/g" >> frontend/.env
+            echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> frontend/.env
             cat frontend/.env
 
 workflows:
   default:
     jobs:
-      - inittial-infra
+      # - inittial-infra
       # - build-frontend
       # - build-backend
       # - test-frontend:
@@ -246,4 +245,4 @@ workflows:
       #     requires: [build-backend]
       # - create-backend-image: 
       #     requires: [build-backend]
-      # - deploy-backend
+      - deploy-backend
