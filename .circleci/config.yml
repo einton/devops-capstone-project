@@ -197,6 +197,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-env]
       - run:
           name: Install Dependences
           command: |
@@ -226,12 +228,23 @@ jobs:
             export BACKEND_ENDPOINT=$(kubectl get service micro-udapeple -o json | jq -r '.status.loadBalancer.ingress[].hostname')
             export API_URL="http://${BACKEND_ENDPOINT}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> frontend/.env
-            cat frontend/.env
+            echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> /tmp/.env
+            cat /tmp/.env
+      - save_cache:
+          paths: [/tmp/]
+          key: frontend-env
+
+  smoke-test-backend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-env]
       - run:
           name: Smoke test.
           command: |
-            export API_URL=$(sed -r 's/^[_0-9a-zA-Z]+=//g' frontend/.env)
+            export API_URL=$(sed -r 's/^[_0-9a-zA-Z]+=//g' /tmp/.env)
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
@@ -240,9 +253,19 @@ jobs:
                 exit 1
             fi
       - run:
+          name: Install kubectl
+          when: on_fail
+          command: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+      - run:
           name: Destroy deployment and service
           when: on_fail
           command: |
+            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
             kubectl delete -f deployment.yml
             kubectl delete -f service.yml
 
@@ -263,3 +286,5 @@ workflows:
       # - create-backend-image: 
       #     requires: [build-backend]
       - deploy-backend
+      - smoke-test-backend:: 
+          requires: [deploy-backend]
