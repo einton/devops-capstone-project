@@ -228,17 +228,10 @@ jobs:
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> frontend/.env
             cat frontend/.env
-
-  smoke-test:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
       - run:
-          name: Backend smoke test.
+          name: Smoke test.
           command: |
-            cd frontend
-            export BACKEND_IP=$(sed -r 's/^[_0-9a-zA-Z]+=//g' .env)
+            export BACKEND_IP=$(sed -r 's/^[_0-9a-zA-Z]+=//g' .frontend/.env)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
@@ -248,19 +241,9 @@ jobs:
                 exit 1
             fi
       - run:
-          name: Install kubectl
-          when: on_fail
-          command: |
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-            kubectl version --client
-      - run:
           name: Destroy deployment and service
           when: on_fail
           command: |
-            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
             kubectl delete -f deployment.yml
             kubectl delete -f service.yml
 
