@@ -231,7 +231,7 @@ jobs:
             echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> /tmp/.env
             cat /tmp/.env
       - save_cache:
-          paths: [/tmp/]
+          paths: [/tmp]
           key: frontend-env
 
   smoke-test-backend:
