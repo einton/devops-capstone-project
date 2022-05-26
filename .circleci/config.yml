@@ -231,8 +231,7 @@ jobs:
       - run:
           name: Smoke test.
           command: |
-            export BACKEND_IP=$(sed -r 's/^[_0-9a-zA-Z]+=//g' frontend/.env)
-            export API_URL="http://${BACKEND_IP}:3030"
+            export API_URL=$(sed -r 's/^[_0-9a-zA-Z]+=//g' frontend/.env)
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
