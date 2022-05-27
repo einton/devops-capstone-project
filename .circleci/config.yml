@@ -190,6 +190,27 @@ jobs:
             docker image tag micro-udapeople:latest einton/micro-udapeople:latest
             docker push einton/micro-udapeople
 
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Run migrations
+          command: |
+            sudo update-ca-certificates
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+
   deploy-backend:
     docker:
       - image: amazon/aws-cli
@@ -271,6 +292,51 @@ jobs:
             kubectl delete -f deployment.yml
             kubectl delete -f service.yml
 
+  create-frontend-bucket:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip 
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=micro-udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/
+      - run:
+          name: Install dependencies
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Get backend url
+          command: |
+            cp /tmp/.env frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
+
 workflows:
   default:
     jobs:
@@ -287,6 +353,7 @@ workflows:
       #     requires: [build-backend]
       # - create-backend-image: 
       #     requires: [build-backend]
-      - deploy-backend
-      - smoke-test-backend: 
-          requires: [deploy-backend]
+      - create-frontend-bucket
+      # - deploy-backend
+      # - smoke-test-backend: 
+      #     requires: [deploy-backend]
