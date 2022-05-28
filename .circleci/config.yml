@@ -515,7 +515,7 @@ jobs:
             echo NewWorkflowID: "${NewWorkflowID}"
             if [ "None" != "${OldWorkflowID}" ] && [ "${CIRCLE_WORKFLOW_ID}" == "${NewWorkflowID}" ];
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws s3 rm "s3://micro-udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "micro-udapeople-frontend-${OldWorkflowID}"
               sed -i "s/micro-udapeople-app/micro-udapeople-app-${OldWorkflowID}/g" deployment.yml
               cat deployment.yml
