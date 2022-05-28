@@ -507,10 +507,10 @@ jobs:
           command: |
             export OldWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`OldWorkflowID\`].Value" \
-                    --no-paginate --output text)
+                    --no-paginate --output text --region us-east-1)
             export NewWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`NewWorkflowID\`].Value" \
-                    --no-paginate --output text)
+                    --no-paginate --output text --region us-east-1)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo NewWorkflowID: "${NewWorkflowID}"
             if [ "None" != "${OldWorkflowID}" ] && [ "${CIRCLE_WORKFLOW_ID}" == "${NewWorkflowID}" ];
