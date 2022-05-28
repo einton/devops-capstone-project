@@ -513,13 +513,9 @@ jobs:
 
   test-command:
     docker:
-      - image: python:3.7
+      - image: hadolint/hadolint
     steps:
       - checkout
-      - run:
-          name: Install dependences
-          command: |
-            make install
       - run:
           name: Linting 
           command: |
