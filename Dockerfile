@@ -35,5 +35,6 @@ RUN tar -xvf /app/artifact.tar.gz
 ## Step 4:
 EXPOSE 3030
 
+USER circleci
 ## Step 5:
 CMD ["pm2-runtime", "start", "npm -- start"]
