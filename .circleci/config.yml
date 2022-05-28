@@ -453,6 +453,17 @@ jobs:
               aws cloudformation delete-stack --stack-name "micro-udapeople-frontend-${OldWorkflowID}"
             fi
 
+  test-command:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Remove old stacks and files
+          command: |
+            sed -i 's/micro-udapeople-app/micro-udapeople-app-1/g' service.yml
+            cat service.yml
+
 workflows:
   default:
     jobs:
@@ -462,37 +473,38 @@ workflows:
               only: [init-project]
       - inittial-cloudfront:
           requires: [inittial-infra]
-      - build-frontend:
-          filters:
-            branches:
-              only: [main]
-      - build-backend:
-          filters:
-            branches:
-              only: [main]
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - create-backend-image: 
-          requires: [test-backend, scan-backend, test-frontend, scan-frontend]
-      - run-migrations: 
-          requires: [create-backend-image]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test-backend: 
-          requires: [deploy-backend]
-      - create-frontend-bucket:
-          requires: [smoke-test-backend]
-      - deploy-frontend: 
-          requires: [create-frontend-bucket]
-      - smoke-test-frontend: 
-          requires: [deploy-frontend]
-      - cloudfront-update: 
-          requires: [smoke-test-frontend]
-      - cleanup:
-          requires: [cloudfront-update]
+      - test-command
+      # - build-frontend:
+      #     filters:
+      #       branches:
+      #         only: [main]
+      # - build-backend:
+      #     filters:
+      #       branches:
+      #         only: [main]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - create-backend-image: 
+      #     requires: [test-backend, scan-backend, test-frontend, scan-frontend]
+      # - run-migrations: 
+      #     requires: [create-backend-image]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test-backend: 
+      #     requires: [deploy-backend]
+      # - create-frontend-bucket:
+      #     requires: [smoke-test-backend]
+      # - deploy-frontend: 
+      #     requires: [create-frontend-bucket]
+      # - smoke-test-frontend: 
+      #     requires: [deploy-frontend]
+      # - cloudfront-update: 
+      #     requires: [smoke-test-frontend]
+      # - cleanup:
+      #     requires: [cloudfront-update]
