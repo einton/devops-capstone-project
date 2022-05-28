@@ -461,6 +461,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
+            ls -l
             sed -i 's/micro-udapeople-app/micro-udapeople-app-1/g' service.yml
             cat service.yml
 
