@@ -360,9 +360,9 @@ jobs:
             else
                 exit 1
             fi
-      # - destroy-deployment-service:
-      #     cluster-name: Micro-Udapeople-Cluster
-      #     workflow-id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
 

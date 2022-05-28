@@ -196,9 +196,9 @@ Resources:
       InstanceTypes: 
         - t3.micro
       ScalingConfig:
-        MinSize: 1
-        DesiredSize: 3
-        MaxSize: 5
+        MinSize: 3
+        DesiredSize: 5
+        MaxSize: 7
       Subnets:
         - Ref: PublicSubnet1
         - Ref: PublicSubnet2
