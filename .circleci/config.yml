@@ -401,7 +401,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
             aws s3 cp dist s3://micro-udapeople-${CIRCLE_WORKFLOW_ID} --recursive
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
@@ -544,22 +544,22 @@ workflows:
           filters:
             branches:
               only: [main]
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - create-backend-image: 
-      #     requires: [test-backend, scan-backend, test-frontend, scan-frontend]
-      # - run-migrations: 
-      #     requires: [create-backend-image]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - create-backend-image: 
+          requires: [test-backend, scan-backend, test-frontend, scan-frontend]
+      - run-migrations: 
+          requires: [create-backend-image]
       - deploy-backend:
-          requires: [build-frontend, build-backend]
+          requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [build-frontend, build-backend]
       - smoke-test-backend: 
           requires: [deploy-backend]
       - create-frontend-bucket:
