@@ -24,7 +24,7 @@ ENV TYPEORM_PORT=${TYPEORM_PORT}
 ENV TYPEORM_USERNAME=${TYPEORM_USERNAME}
 
 ## Step 2:
-ADD . artifact.tar.gz /app/
+COPY . artifact.tar.gz /app/
 
 ## Step 3:
 RUN npm install pm2 -g
