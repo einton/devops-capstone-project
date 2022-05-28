@@ -454,8 +454,8 @@ jobs:
           command: |
             export OldWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`NewWorkflowID\`].Value" \
-                    --no-paginate --output text)
-            echo ${OldWorkflowID}
+                    --no-paginate --output text --region us-east-1)
+            echo "${OldWorkflowID}"
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialCloudfront \
@@ -499,7 +499,7 @@ jobs:
                     --no-paginate --output text)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo NewWorkflowID: "${NewWorkflowID}"
-            if [ ! -z "${OldWorkflowID}" ] && [ "${CIRCLE_WORKFLOW_ID}" == "${NewWorkflowID}" ];
+            if [ "None" != "${OldWorkflowID}" ] && [ "${CIRCLE_WORKFLOW_ID}" == "${NewWorkflowID}" ];
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "micro-udapeople-frontend-${OldWorkflowID}"
