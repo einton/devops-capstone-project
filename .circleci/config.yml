@@ -455,11 +455,12 @@ jobs:
             export OldWorkflowID=$(aws cloudformation \
                     list-exports --query "Exports[?Name==\`NewWorkflowID\`].Value" \
                     --no-paginate --output text)
+            echo ${OldWorkflowID}
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialCloudfront \
               --parameter-overrides OldWorkflowID="${OldWorkflowID}" NewWorkflowID="${CIRCLE_WORKFLOW_ID}" \
-              --tags project=micro-udapeople
+              --tags project=micro-udapeople --region us-east-1
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
       - destroy-deployment-service:
@@ -543,20 +544,22 @@ workflows:
           filters:
             branches:
               only: [main]
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - create-backend-image: 
-          requires: [test-backend, scan-backend, test-frontend, scan-frontend]
-      - run-migrations: 
-          requires: [create-backend-image]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - create-backend-image: 
+      #     requires: [test-backend, scan-backend, test-frontend, scan-frontend]
+      # - run-migrations: 
+      #     requires: [create-backend-image]
+      # - deploy-backend:
+      #     requires: [run-migrations]
       - deploy-backend:
-          requires: [run-migrations]
+          requires: [build-frontend, build-backend]
       - smoke-test-backend: 
           requires: [deploy-backend]
       - create-frontend-bucket:
