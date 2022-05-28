@@ -71,15 +71,21 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Update
+          command: |
+            yum -y update
+      - run:
           name: Create cloudfront distribution
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialCloudfront \
               --parameter-overrides OldWorkflowID="None" NewWorkflowID="${CIRCLE_WORKFLOW_ID}" \
-              --tags project=micro-udapeople
+              --tags project=micro-udapeople --region us-east-1
       - destroy-environment:
           workflow-id: InitialCloudfront
+      - destroy-environment:
+          workflow-id: micro-udapeople-initial-infra-${CIRCLE_WORKFLOW_ID}
 
   build-frontend:
     docker:
