@@ -513,13 +513,17 @@ jobs:
 
   test-command:
     docker:
-      - image: hadolint/hadolint
+      - image: python:3.7
     steps:
       - checkout
       - run:
+          name: Install dependences
+          command: |
+            make install
+      - run:
           name: Linting 
           command: |
-            hadolint --ignore DL3016 --ignore DL3010 Dockerfile
+            make lint
 
 workflows:
   default:
