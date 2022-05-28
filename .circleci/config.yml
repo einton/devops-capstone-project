@@ -513,15 +513,17 @@ jobs:
 
   test-command:
     docker:
-      - image: amazon/aws-cli
+      - image: python
     steps:
       - checkout
       - run:
-          name: Remove old stacks and files
+          name: Install dependences
           command: |
-            ls -l
-            sed -i "s/micro-udapeople-app/micro-udapeople-app-${CIRCLE_WORKFLOW_ID}/g" service.yml
-            cat service.yml
+            make install
+      - run:
+          name: Linting 
+          command: |
+            make lint
 
 workflows:
   default:
