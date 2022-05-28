@@ -1,5 +1,6 @@
 FROM circleci/node:13.8.0
 
+USER root
 ## Step 1:
 WORKDIR /app/backend
 
@@ -23,12 +24,12 @@ ENV TYPEORM_PORT=${TYPEORM_PORT}
 ENV TYPEORM_USERNAME=${TYPEORM_USERNAME}
 
 ## Step 2:
-COPY . artifact.tar.gz /app/
+ADD . artifact.tar.gz /app/
 
 ## Step 3:
-RUN sudo npm install pm2 -g
-RUN sudo npm install
-RUN sudo tar -xvf /app/artifact.tar.gz
+RUN npm install pm2 -g
+RUN npm install
+RUN tar -xvf /app/artifact.tar.gz
 
 
 ## Step 4:
