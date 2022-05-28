@@ -64,7 +64,7 @@ commands:
           name: Update cluster profile
           when: on_fail
           command: |
-            aws eks --region us-east-1 update-kubeconfig --name << parameters.cluster-name >>
+            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
       - run:
           name: Destroy deployment and service
           when: on_fail
