@@ -217,6 +217,20 @@ jobs:
             npm audit fix --force
             npm audit --audit-level=critical
 
+  dockerfile-linting:
+    docker:
+      - image: python:3.7
+    steps:
+      - checkout
+      - run:
+          name: Install dependences
+          command: |
+            make install
+      - run:
+          name: Linting 
+          command: |
+            make lint
+
   create-backend-image:
     docker:
       - image: cimg/go:1.17
@@ -554,8 +568,12 @@ workflows:
           requires: [build-frontend]
       - scan-backend:
           requires: [build-backend]
+      - dockerfile-linting:
+          filters:
+            branches:
+              only: [main]
       - create-backend-image: 
-          requires: [test-backend, scan-backend, test-frontend, scan-frontend]
+          requires: [test-backend, scan-backend, test-frontend, scan-frontend, dockerfile-linting]
       - run-migrations: 
           requires: [create-backend-image]
       - deploy-backend:
