@@ -43,6 +43,42 @@ commands:
               npm run migration:revert
             fi
 
+  destroy-deployment-service:
+    description: Install kubectl and get profile at amazon/aws-cli image
+    parameters:
+      cluster-name:
+        type: string    
+      workflow-id:
+        type: string       
+    steps:
+      - run:
+          name: Install kubectl
+          when: on_fail
+          command: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+      - run:
+          name: Update cluster profile
+          when: on_fail
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name << parameters.cluster-name >>
+      - run:
+          name: Destroy deployment and service
+          when: on_fail
+          command: |
+            ID=<< parameters.workflow-id >>/          
+            echo ${ID} 
+            sed -i "s/micro-udapeople-app/micro-udapeople-app-${ID}/g" deployment.yml
+            cat deployment.yml
+            sed -i "s/micro-udapeople-app/micro-udapeople-app-${ID}/g" service.yml
+            cat service.yml
+            kubectl delete -f deployment.yml
+            kubectl delete -f service.yml
+
+
 jobs:
   inittial-infra:
     docker:
@@ -261,10 +297,14 @@ jobs:
       - run:
           name: Update cluster profile
           command: |
-            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
+            aws eks --region us-east-1 update-kubeconfig --name << parameters.cluster-name >>
       - run:
           name: Create deployment and service
           command: |
+            sed -i "s/micro-udapeople-app/micro-udapeople-app-${CIRCLE_WORKFLOW_ID}/g" deployment.yml
+            cat deployment.yml
+            sed -i "s/micro-udapeople-app/micro-udapeople-app-${CIRCLE_WORKFLOW_ID}/g" service.yml
+            cat service.yml
             kubectl apply -f deployment.yml
             kubectl apply -f service.yml
       - run:
@@ -306,22 +346,9 @@ jobs:
             else
                 exit 1
             fi
-      - run:
-          name: Install kubectl
-          when: on_fail
-          command: |
-            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
-            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
-            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
-            kubectl version --client
-      - run:
-          name: Destroy deployment and service
-          when: on_fail
-          command: |
-            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
-            kubectl delete -f deployment.yml
-            kubectl delete -f service.yml
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
 
@@ -343,6 +370,9 @@ jobs:
               --stack-name "micro-udapeople-frontend-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}" --region us-east-1
       - revert-migrations:
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
           workflow-id: ${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           workflow-id: micro-udapeople-frontend-${CIRCLE_WORKFLOW_ID}
@@ -375,6 +405,9 @@ jobs:
             aws s3 cp dist s3://micro-udapeople-${CIRCLE_WORKFLOW_ID} --recursive
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
           workflow-id: micro-udapeople-frontend-${CIRCLE_WORKFLOW_ID}
 
@@ -403,6 +436,9 @@ jobs:
             fi
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
       - clear-s3:
           workflow-id: micro-udapeople-${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
@@ -426,6 +462,9 @@ jobs:
               --tags project=micro-udapeople
       - revert-migrations:
           workflow-id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-deployment-service:
+          cluster-name: Micro-Udapeople-Cluster
+          workflow-id: ${CIRCLE_WORKFLOW_ID}
       - clear-s3:
           workflow-id: micro-udapeople-${CIRCLE_WORKFLOW_ID}
       - destroy-environment:
@@ -436,6 +475,18 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install kubectl
+          command: |
+            curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+            curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+            echo "$(cat kubectl.sha256)  kubectl" | sha256sum --check
+            install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+            kubectl version --client
+      - run:
+          name: Update cluster profile
+          command: |
+            aws eks --region us-east-1 update-kubeconfig --name Micro-Udapeople-Cluster
       - run:
           name: Remove old stacks and files
           command: |
@@ -451,6 +502,12 @@ jobs:
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "micro-udapeople-frontend-${OldWorkflowID}"
+              sed -i "s/micro-udapeople-app/micro-udapeople-app-${OldWorkflowID}/g" deployment.yml
+              cat deployment.yml
+              sed -i "s/micro-udapeople-app/micro-udapeople-app-${OldWorkflowID}/g" service.yml
+              cat service.yml
+              kubectl delete -f deployment.yml
+              kubectl delete -f service.yml
             fi
 
   test-command:
@@ -474,38 +531,41 @@ workflows:
               only: [init-project]
       - inittial-cloudfront:
           requires: [inittial-infra]
-      - test-command
-      # - build-frontend:
-      #     filters:
-      #       branches:
-      #         only: [main]
-      # - build-backend:
-      #     filters:
-      #       branches:
-      #         only: [main]
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - create-backend-image: 
-      #     requires: [test-backend, scan-backend, test-frontend, scan-frontend]
-      # - run-migrations: 
-      #     requires: [create-backend-image]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      # - smoke-test-backend: 
-      #     requires: [deploy-backend]
-      # - create-frontend-bucket:
-      #     requires: [smoke-test-backend]
-      # - deploy-frontend: 
-      #     requires: [create-frontend-bucket]
-      # - smoke-test-frontend: 
-      #     requires: [deploy-frontend]
-      # - cloudfront-update: 
-      #     requires: [smoke-test-frontend]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - test-command:
+          filters:
+            branches:
+              only: [test-command]
+      - build-frontend:
+          filters:
+            branches:
+              only: [main]
+      - build-backend:
+          filters:
+            branches:
+              only: [main]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - create-backend-image: 
+          requires: [test-backend, scan-backend, test-frontend, scan-frontend]
+      - run-migrations: 
+          requires: [create-backend-image]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test-backend: 
+          requires: [deploy-backend]
+      - create-frontend-bucket:
+          requires: [smoke-test-backend]
+      - deploy-frontend: 
+          requires: [create-frontend-bucket]
+      - smoke-test-frontend: 
+          requires: [deploy-frontend]
+      - cloudfront-update: 
+          requires: [smoke-test-frontend]
+      - cleanup:
+          requires: [cloudfront-update]
