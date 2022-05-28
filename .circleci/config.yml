@@ -69,7 +69,7 @@ commands:
           name: Destroy deployment and service
           when: on_fail
           command: |
-            ID=<< parameters.workflow-id >>/          
+            ID=<< parameters.workflow-id >>       
             echo ${ID} 
             sed -i "s/micro-udapeople-app/micro-udapeople-app-${ID}/g" deployment.yml
             cat deployment.yml
@@ -311,7 +311,7 @@ jobs:
           name: Get backend endpoint
           command: |
             sleep 120s
-            export BACKEND_ENDPOINT=$(kubectl get service micro-udapeple -o json | jq -r '.status.loadBalancer.ingress[].hostname')
+            export BACKEND_ENDPOINT=$(kubectl get service micro-udapeople-app-${CIRCLE_WORKFLOW_ID} -o json | jq -r '.status.loadBalancer.ingress[].hostname')
             export API_URL="http://${BACKEND_ENDPOINT}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_ENDPOINT}:3030" >> /tmp/.env
