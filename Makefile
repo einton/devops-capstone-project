@@ -18,6 +18,6 @@ install:
 lint:
 	# See local hadolint install instructions:   https://github.com/hadolint/hadolint
 	# This is linter for Dockerfiles
-	hadolint --ignore DL3016 --ignore DL3010 Dockerfile
+	hadolint --ignore DL3016 Dockerfile
 
 all: install lint
